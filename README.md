@@ -44,7 +44,12 @@
 - display payment methods
 - save payment method in context
 
-----
+### Seed sample products
+- create product model in mongoose
+- insert sample products to mongodb
+- load products from db in home and product screen.
+- check product count in stock and in cart.
+---
 
 ## About Next.js
 

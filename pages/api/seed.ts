@@ -1,5 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
+import Product from '../../models/Product'
 import User from '../../models/User'
 import data from '../../utils/data'
 import db from '../../utils/db'
@@ -14,11 +15,13 @@ async function handler(
     res: NextApiResponse<Data>
 ) {
     await db.connect()
-
     // Delete all previous users in user collections.
     await User.deleteMany()
     // Add sample users.
     await User.insertMany(data.users)
+
+    await Product.deleteMany()
+    await Product.insertMany(data.products)
 
     // Disconnect after inserting sample users.
     await db.disconnect()
