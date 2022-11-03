@@ -1,0 +1,141 @@
+import React, { useEffect } from 'react'
+import { SubmitHandler, useForm } from "react-hook-form";
+import { signIn, useSession } from 'next-auth/react'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { toast } from 'react-toastify';
+import Layout from '../components/Layout'
+import { getError } from '../utils/error';
+
+type Inputs = {
+    email: string,
+    passwordRequired: string,
+};
+
+/** 
+* LoginScreen react functional component.
+*
+* [Part 8 Create Login Form] https://youtu.be/pz6mhAHPjVs 
+* https://react-hook-form.com/
+*/
+export default function LoginScreen() {
+    // Access session in _app.tsx.
+    // Renamed data to session.
+    const { data: session } = useSession()
+
+    // useRouter | router | push user to redirect to another page.
+    const router = useRouter()
+    const { redirect } = router.query
+
+    // When there is change in the session,
+    // session | useEffect() | if session.user has value 
+    // | redirect to redirect || '/' (home).
+    useEffect(() => {
+        // If user exists in session, user is logged in.
+        // On signIn() session.user gets a new value.
+        // FIXME: handle redirect undefined & string[].
+        if (session?.user) {
+            router.push(redirect || '/')
+        } // Performs a `pushState` with arguments
+    }, [router, session, redirect])
+
+    const { register, handleSubmit, watch, formState: { errors }
+    } = useForm<Inputs, any>();
+
+    const onSubmit: SubmitHandler<Inputs> = async ({ email, passwordRequired }) => {
+        // /api/auth/[...nextauth].js.
+        try {
+            /* Client-side method to initiate a signin flow
+            or send the user to the signin page listing all possible providers.
+            Automatically adds the CSRF token to the request. */
+            const result = await signIn('credentials', {
+                redirect: false, // Redirect manually after login.
+                email,
+                passwordRequired,
+            })
+            console.log(email, passwordRequired)
+            console.log(result)
+            // Pass in email, password handled in NextAuth().
+            // FIXME: Handle undefined `result?`.
+            if (result?.error) {
+                toast.error(result.error)
+            }
+        } catch (err) {
+            // If error in signIn API.
+            toast.error(getError(err))
+        }
+    } // end of onSubmit().
+
+    console.log(watch("email"))
+
+    return (
+        <Layout title={"Login"}>
+            {/* "handleSubmit" will validate your inputs before invoking "onSubmit" */}
+            <form
+                className='mx-auto max-w-screen-md'
+                onSubmit={handleSubmit(onSubmit)}
+            >
+                <h1 className='mb-4 text-xl'>Login</h1>
+                <div className='border p-8'>
+                    <div className='mb-4'>
+                        {/* Connect id of label with corresponding input. */}
+                        <label htmlFor='email'>Email</label>
+                        {/* register your input into the hook by invoking the "register" function */}
+                        <input
+                            type={"email"}
+                            {...register("email", {
+                                required: 'Please enter email.',
+                                pattern: {
+                                    value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$/i,
+                                    message: 'Please enter a valid email.'
+                                },
+                            })}
+                            id='email'
+                            className='w-full'
+                            autoFocus
+                        />
+                        {/* errors will return when field validation fails  */}
+                        {errors.email && (
+                            <div className='text-red-500'>{errors.email?.message}</div>
+                        )}
+                    </div>
+
+                    <div className='mb-4'>
+                        {/* Connect id of Password with corresponding password input box. */}
+                        <label htmlFor='password'>Password</label>
+                        {/* include validation with required or other standard HTML validation rules */}
+                        <input
+                            type={"password"}
+                            {...register("passwordRequired", {
+                                required: 'Please enter a password.',
+                                minLength: {
+                                    value: 6,
+                                    message: 'password is more than 5 chars.'
+                                }
+                            })}
+                            id='password'
+                            className='w-full'
+                            autoFocus
+                        />
+                        {/* errors will return when field validation fails  */}
+                        {errors.passwordRequired && (
+                            <div className='text-red-500'>{errors.passwordRequired?.message}</div>
+                        )}
+                    </div>
+
+                    <div className='mb-4'>
+                        <button className='primary-button'>Login</button>
+                    </div>
+
+                    <div className='mb-4 text-sm'>
+                        Don&apos;t have an account? &nbsp;
+                        <Link href={`/register?redirect=${redirect || '/'}`}>Register</Link>
+                    </div>
+                </div>
+            </form>
+        </Layout>
+    )
+}
+
+// https://next-auth.js.org/getting-started/example#frontend---add-react-hook
+// [Part 10 Create Login API]: https://youtu.be/fBew9hQhvLU

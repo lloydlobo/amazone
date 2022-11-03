@@ -1,6 +1,56 @@
+## Steps Development
+
+<!-- https://www.youtube.com/watch?v=4N77Yj5Wdqk -->
+### Create Product Details
+- create Product page
+- create 3 columns
+- show image in first column
+- show product info in second column
+- show add to cart action on third column
+- add styles
+
+<!-- https://www.youtube.com/watch?v=-faQM063ZwA -->
+### Handle Changing Cart Items
+- add select box for quantity
+- handle select box change
+
+<!-- https://youtu.be/gJ5_Rx1S8zY -->
+### Save Cart Items
+- install `js-cookie` package
+- save and retrieve cart items in cookies
+- add eslint support for browser, node, es6
+- use useEffect for matching state in client & server side. with item count cart
+
+<!-- https://youtu.be/fBew9hQhvLU -->
+### Create Login API
+- install next-auth
+- create nextauth.ts
+- implement signin
+- use signin in login form
+
+<!-- https://youtu.be/_IBlyR5mRzA?t=9839 -->
+### Add User Menu
+- Check user authentication
+- npm install @headlessui/react <!-- https://headlessui.com/react/menu -->
+- show user menu
+
+<!-- https://youtu.be/_IBlyR5mRzA?t=10369 -->
+### Create Shipping Screen
+- display address fields
+- save address in context
+
+<!-- https://youtu.be/_IBlyR5mRzA?t=11392 -->
+### Create Payment Screen
+- display payment methods
+- save payment method in context
+
+----
+
+## About Next.js
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+### Getting Started
 
 First, run the development server:
 
@@ -18,7 +68,7 @@ You can start editing the page by modifying `pages/index.tsx`. The page auto-upd
 
 The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
-## Learn More
+### Learn More
 
 To learn more about Next.js, take a look at the following resources:
 
@@ -27,7 +77,7 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+### Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 

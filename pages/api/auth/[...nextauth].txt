@@ -1,0 +1,133 @@
+import NextAuth from "next-auth" // import GithubProvider from "next-auth/providers/github"
+import CredentialsProvider from "next-auth/providers/credentials";
+// import { CredentialsConfig } from "next-auth/providers/credentials";
+import { JWT } from "next-auth/jwt"
+import User from "../../../models/User";
+import db from "../../../utils/db";
+import bcryptjs from 'bcryptjs'
+
+/**
+ * The shape of the user object returned in the OAuth providers' `profile` callback,
+ * or the second parameter of the `session` callback, when using a database.
+ */
+interface User { }
+/**
+ * Usually contains information about the provider being used
+ * and also extends `TokenSet`, which is different tokens returned by OAuth Providers.
+ */
+interface Account { }
+/** The OAuth profile returned from your provider */
+interface Profile { }
+
+export interface CredentialInput {
+    _id?: string;
+    name: string;
+    email?: string;
+    password?: string;
+    image: string;
+    isAdmin: boolean;
+}
+
+/**
+* NextAuth().
+*
+* Choose how you want to save the user session.
+* The default is `"jwt"`, an encrypted JWT (JWE) in the session cookie.
+*/
+// https://next-auth.js.org/getting-started/typescript
+// /** @return { import("next-auth/adapters").Adapter } */
+export default NextAuth({
+    session: {
+        strategy: 'jwt',
+    },
+    // id from database, token from lifecycle.
+    callbacks: {
+        // Fill token.
+        async jwt(token: JWT, user?: { _id: unknown; isAdmin: unknown },) {
+            if (user?._id) {
+                token._id = user._id
+            }
+            if (user?.isAdmin) {
+                token.isAdmin = user.isAdmin
+            }
+            return token
+        },
+
+        // Fill session.
+        async session({ session, token }: { session: any, token: JWT, user: any }) {
+            if (token?._id) {
+                session.user._id = token._id
+            }
+            if (token?.isAdmin) {
+                session.user.isAdmin = token.isAdmin
+            }
+            // The return type will match 
+            // the one returned in `useSession()`
+            return session
+        },
+    },
+    // With MongoDB, not GitHub.
+    //
+    providers: [
+        CredentialsProvider({
+            async authorize(credentials) {
+                // async authorize(credentials: CredentialsConfig["credentials"]) {
+                await db.connect()
+                // Find user in database based on 
+                // input in credentials parameter.
+                // Finds one document.
+                const user = await User.findOne({
+                    email: credentials.email,
+                })
+                await db.disconnect()
+                // Check user and password together.
+                // If user exists and, password is same across,
+                // password in database and ui credentials.
+                if (user && bcryptjs.compareSync(credentials.password, user.password)) {
+                    // Object from database, user collection.
+                    return {
+                        _id: user._id,
+                        name: user.name,
+                        email: user.email,
+                        image: 'f',
+                        isAdmin: user.isAdmin,
+                    }
+                }
+                // If email & password doesn't pass bcrypt
+                throw new Error('Invalid email or password!');
+            },
+        }
+        )
+    ],
+})
+
+    // /** Finds one document. */
+    // findOne<ResultDoc = HydratedDocument<T, TMethodsAndOverrides, TVirtuals>>(
+    //   filter?: FilterQuery<T>,
+    //   projection?: ProjectionType<T> | null,
+    //   options?: QueryOptions<T> | null,
+    //   callback?: Callback<ResultDoc | null>
+    // ): QueryWithHelpers<ResultDoc | null, ResultDoc, TQueryHelpers, T>;
+//
+// import NextAuth from "next-auth"
+
+// export default NextAuth({
+//   callbacks: {
+//     session({ session, token, user }) {
+//       return session // The return type will match the one returned in `useSession()`
+//     },
+//   },
+// })
+//
+// export const authOptions = {
+// Configure one or more authentication providers
+// providers: [
+// GithubProvider({
+//     clientId: process.env.GITHUB_ID,
+//     clientSecret: process.env.GITHUB_SECRET,
+// }),
+// ...add more providers here
+// ],
+// }
+
+// export default NextAuth(authOptions)
