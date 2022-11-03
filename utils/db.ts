@@ -1,17 +1,18 @@
-import mongoose, { ConnectionStates } from 'mongoose'
+import mongoose, { ConnectionStates, LeanDocument } from 'mongoose'
 
 // Object stores the connection state of Database.
 const connection = {
     isConnected: ConnectionStates.connected
 }
 
-// [Part 9 Connect To MongoDB] https://youtu.be/7W4vja9Ax-0
 /**
 * connect async function.
 */
-async function connect() {
+// [Part 9 Connect To MongoDB] https://youtu.be/7W4vja9Ax-0
+async function connect(): Promise<void> {
     if (connection.isConnected) {
         console.log('already connected.')
+        return
     }
 
     // If connections in connections queue.
@@ -49,10 +50,43 @@ async function disconnect() {
         if (process.env.NODE_ENV === 'production') {
             await mongoose.disconnect()
             connection.isConnected = ConnectionStates.disconnected
+        } else {
+            console.log('is not disconnected')
         }
     }
 }
-const db = { connect, disconnect }
+
+
+// │     Argument of type '(doc: MongoDoc) => MongoJSON' is not assignable
+// to parameter of type '(value: LeanDocument<any>, index: number, array: LeanDocument<any>[]) => MongoJSON typescript (2345) [51, 36]
+type MongoJSON = { _id: string; createdAt: string; updatedAt: string; }
+type MongoDoc = { _id: object; createdAt: object; updatedAt: object; }
+type lean = LeanDocument<any>[] | LeanDocument<any>[]
+
+
+/**
+* convertDocToJSON serializes MongoDB Doc Object to JSON object.
+*
+* Iterating over Doc products is possible if it's a JSON.
+*/
+function convertDocToJSON(doc: any) {
+    // let jsonObject = { _id: '', createdAt: '', updatedAt: '' };
+    doc._id = doc._id.toString()
+    doc.createdAt = doc.createdAt.toString()
+    doc.updatedAt = doc.updatedAt.toString()
+
+    console.log({ doc })
+    console.log('in db.ts.')
+
+    return doc
+}
+
+const db = {
+    connect,
+    disconnect,
+    convertDocToJSON,
+}
+
 export default db
 
 // REFERENCES:

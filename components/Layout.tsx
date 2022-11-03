@@ -63,8 +63,8 @@ export default function Layout({ title, children }: { title: any, children: any 
             <ToastContainer position="bottom-center" limit={1} />
 
             <div className="flex flex-col justify-between min-h-screen">
-                <header className="z-50">
-                    <nav className=" flex h-12 justify-between shadow-md items-center px-4">
+                <header className="shadow-md">
+                    <nav className=" container mx-auto z-50 flex h-12 justify-between  items-center px-4">
                         <Link href={"/"}>
                             <a className="logo text-lg font-bold hover:font-extrabold">amazone</a>
                         </Link>
@@ -146,7 +146,7 @@ export default function Layout({ title, children }: { title: any, children: any 
                     {children}
                 </main>
 
-                <footer className="flex h-10 justify-center items-center shadow-inner">
+                <footer className="container mx-auto flex h-10 justify-center items-center shadow-inner">
                     <p>Copyright &copy; Amazone</p>
                 </footer>
             </div >

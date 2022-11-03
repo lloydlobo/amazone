@@ -49,6 +49,13 @@
 - insert sample products to mongodb
 - load products from db in home and product screen.
 - check product count in stock and in cart.
+
+### Load products from MongoDB
+- load products in home page from mongodb
+- load products in product page from mongodb
+- use product api to check count in stock in add to cart
+
+
 ---
 
 ## About Next.js

@@ -2,10 +2,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useContext } from 'react'
+import { toast } from 'react-toastify';
 import FAQProduct from '../../components/FAQProduct';
 import Layout from '../../components/Layout'
 import RadioGroups from '../../components/RadioGroups';
 import data from '../../utils/data';
+import db from '../../utils/db';
 import { Store } from '../../utils/Store';
 
 //  https://www.youtube.com/watch?v=63xprw4Ii5I
@@ -49,6 +51,7 @@ export default function ProductScreen() {
             payload: { ...product, quantity } // quantity: 1 (without state.cart....)
         })
 
+        toast.success('Product added to the cart')
     } // end of addToCartHandler().
 
     return (
@@ -63,18 +66,28 @@ export default function ProductScreen() {
                         alt={product.name}
                         width={640}
                         height={640}
-                        // layout="responsive"
+                        layout="responsive"
                         className='img-overlay'
-                    ></Image>
+                    />
                 </div>
 
                 <div className='product-info'>
                     <ul>
-                        <li><h1 className='text-lg'>{product.name}</h1></li>
-                        <li>Category: {product.category}</li>
-                        <li>Brand: {product.brand}</li>
-                        <li>{product.rating} of {product.numReviews} reviews</li>
-                        <li>Description: {product.description}</li>
+                        <li>
+                            <h1 className='text-lg'>{product.name}</h1>
+                        </li>
+                        <li>
+                            Category: {product.category}
+                        </li>
+                        <li>
+                            Brand: {product.brand}
+                        </li>
+                        <li>
+                            {product.rating} of {product.numReviews} reviews
+                        </li>
+                        <li>
+                            Description: {product.description}
+                        </li>
                     </ul>
                     <RadioGroups />
                     <FAQProduct />
@@ -89,7 +102,13 @@ export default function ProductScreen() {
 
                         <div className='mb-2 flex justify-between'>
                             <div>Status</div>
-                            <div>{product.countInStock > 0 ? 'In stock' : 'Unavailable'}</div>
+                            <div>
+                                {
+                                    product.countInStock > 0
+                                        ? 'In stock'
+                                        : 'Unavailable'
+                                }
+                            </div>
                         </div>
 
                         <button
@@ -103,4 +122,17 @@ export default function ProductScreen() {
             </div> {/* end of grid */}
         </Layout>
     )
+}
+
+/**
+* getServerSideProps function gets products data from database.
+*
+* Run before rendering the component.
+*/
+// context: React.Context<any>
+export async function getServerSideProps(context: { params: any; }) {
+    const { params } = context
+    const { slug } = params
+
+    await db.connect()
 }

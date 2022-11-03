@@ -2,17 +2,20 @@ import Link from 'next/link'
 import React from 'react'
 
 // Product type.
-type Product = {
-    name: string,
-    slug: string,
-    category: string,
-    image: string,
-    price: number,
-    brand: string,
-    rating: number,
-    numReviews: number,
-    countInStock: number,
-    description: string,
+export type ProductType = {
+    name: string
+    slug: string
+    category: string
+    image: string
+    price: number
+    brand: string
+    rating: number
+    numReviews: number
+    countInStock: number
+    description: string
+    _id?: string
+    createdAt?: string
+    updatedAt?: string
 }
 
 /**
@@ -21,9 +24,15 @@ type Product = {
 * Since img tag is used instead of Image component. 
 */
 /* eslint-disable @next/next/no-img-element */
-export function ProductItem(
-    { product }: { product: Product }
+export function ProductItem({
+    product,
+    addToCartHandler
+}: {
+    product: ProductType,
+    addToCartHandler: any
+}
 ): JSX.Element {
+
     return (
         <>
             <div className='card'>
@@ -45,8 +54,10 @@ export function ProductItem(
                     <p className="mb-2">{product.brand}</p>
                     <p className="">${product.price}</p>
                     <button
+                        onClick={() => addToCartHandler(product)}
                         className='primary-button'
-                        type='button'>
+                        type='button'
+                    >
                         Add to cart
                     </button>
                 </div>

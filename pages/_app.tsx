@@ -15,19 +15,21 @@ function App({ Component, pageProps: { session, ...pageProps } }) {
     return (
         // <SessionProvider session={pageProps.session}>
         <SessionProvider session={session}>
-            < StoreProvider >
-                {Component.auth ? (
-                    // If authorized Wrap with Auth(). 
-                    <Auth>
+            <StoreProvider>
+                {
+                    Component.auth ? (
+                        // If authorized Wrap with Auth(). 
+                        <Auth>
+                            <Component {...pageProps} />
+                        </Auth>
+                    ) : (
+                        // Else Redirect to /unauthorized page.
                         <Component {...pageProps} />
-                    </Auth>
-                ) : (
-                    // Else Redirect to /unauthorized page.
-                    <Component {...pageProps} />
-                )}
+                    )
+                }
 
-            </StoreProvider >
-        </SessionProvider >
+            </StoreProvider>
+        </SessionProvider>
     )
 }
 
@@ -52,7 +54,11 @@ function Auth({ children }) {
     if (status === 'loading') {
         return (<div>Loading ...</div>)
     }
-    return (<>{children}</>)
+    return (
+        <>
+            {children}
+        </>
+    )
 }
 
 export default App
