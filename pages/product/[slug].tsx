@@ -1,3 +1,4 @@
+import { LeanDocument } from 'mongoose';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -6,44 +7,49 @@ import { toast } from 'react-toastify';
 import FAQProduct from '../../components/FAQProduct';
 import Layout from '../../components/Layout'
 import RadioGroups from '../../components/RadioGroups';
-import data from '../../utils/data';
+import Product from '../../models/Product';
+// import data from '../../utils/data';
 import db from '../../utils/db';
 import { Store } from '../../utils/Store';
 
 //  https://www.youtube.com/watch?v=63xprw4Ii5I
 
+
 /** 
 * ProductScreen function.
 *
 */
-export default function ProductScreen() {
+export default function ProductScreen(props: { product: any; }) {
+    // From ServerSideProps.
+    const { product } = props
+
     const { state, dispatch } = useContext(Store as React.Context<any>)
 
-    const { query } = useRouter()
-    const { slug } = query
+    const router = useRouter()
 
-    const product = data.products.find(p => p.slug === slug)
     if (!product) {
-        return <div>Product Not Found.</div>
+        return (
+            <Layout title={"404: Product Not Found"}>
+                Product Not Found
+            </Layout>
+        )
     }
 
-    // Add items to the cart.
-    // UI in Layout.tsx.
+    // Add items to the cart. UI in Layout.tsx.
     const addToCartHandler = async () => {
         // Have more than 1 item in cart.
         // Search with find in items of cart for products in a page.
-        const existItem = state.cart.cartItems.find((x: { slug: string; }) =>
-            x.slug === product.slug)
-
+        const existItem = state.cart.cartItems.find(
+            (x: { slug: string; }) => x.slug === product.slug
+        )
         // If item is true and found (existItem), 
-        // then set and increarse the quantity.
+        // then set and increase the quantity.
         const quantity = existItem ? existItem.quantity + 1 : 1
 
         if (product.countInStock < quantity) {
             alert('Sorry. Product is out of stock.')
             return
         }
-
         // Use context defined in StoreProvider inside Store.tsx.
         // payload contains all product properties and a single quantity.
         dispatch({
@@ -124,15 +130,51 @@ export default function ProductScreen() {
     )
 }
 
+type serverSideProps = {
+    props: {
+        product: {
+            _id: string
+            createdAt: string
+            updatedAt: string
+        }
+    }
+}
+
 /**
 * getServerSideProps function gets products data from database.
 *
 * Run before rendering the component.
+* Get products from Context set in index.tsx.
 */
 // context: React.Context<any>
-export async function getServerSideProps(context: { params: any; }) {
+async function getServerSideProps(context: { params: any }): Promise<serverSideProps> {
     const { params } = context
+
+    // Access the product url (slug) to determine params.
     const { slug } = params
 
+    // Get data from MongoDB.
     await db.connect()
+    const product: LeanDocument<any> = await Product.findOne({ slug }).lean()
+    await db.disconnect()
+
+    return {
+        props: {
+            product: product ? db.convertDocToObj(product) : null
+        }
+    }
 }
+
+export { getServerSideProps }
+
+// ARCHIVE.
+/* function getMockDataProduct() {
+    const { query } = useRouter();
+    const { slug } = query;
+    const product = data.products.find(p => p.slug === slug);
+    return product;
+}
+(() => { if (!props) {
+        const product = getMockDataProduct()
+        if (!product) { return <div>Product Not Found.</div>; }
+    } })() */
