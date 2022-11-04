@@ -69,22 +69,19 @@ type lean = LeanDocument<any>[] | LeanDocument<any>[]
 *
 * Iterating over Doc products is possible if it's a JSON.
 */
-function convertDocToJSON(doc: any) {
-    // let jsonObject = { _id: '', createdAt: '', updatedAt: '' };
+function convertDocToObj(doc: any) {
     doc._id = doc._id.toString()
     doc.createdAt = doc.createdAt.toString()
     doc.updatedAt = doc.updatedAt.toString()
 
-    console.log({ doc })
-    console.log('in db.ts.')
-
+    // console.log({ doc }) console.log('in db.ts.')
     return doc
 }
 
 const db = {
     connect,
     disconnect,
-    convertDocToJSON,
+    convertDocToObj,
 }
 
 export default db
